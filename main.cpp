@@ -2,6 +2,7 @@
 //
 #include <iostream>
 #include <string>
+#include <fstream>
 #include "display.h"
 #include "gameControl.h"
 
@@ -22,106 +23,140 @@ bool getRoadLocation(Display screen, CatanBoard map, GameController game, Player
 void refreshScreen(Display screen, CatanBoard map, GameController game);
 
 int main(int argc, char* argv[]) {
-	int numberOfPlayers, numwood, numbrick, numsheep, numrock, numwheat, numdevCards, numSettlements, numRoads, numCities;
-	int tile, corner1, corner2;
-	std::cout << "How many players? ";
-	std::cin >> numberOfPlayers;
-	
-	Display display;
-	display.loadSpritePage("128hexsetBuildingFrame2.png");
-	GameController game;
-	game.addPlayers(numberOfPlayers);
-	
-	refreshScreen(display, game.map, game);
+	std::string responce;
+	std::cout << "With this program, you can save a catan game you have in progress and then load it up later and continue playing." << std::endl << "Create  new game? (Y/N): " << std::endl;
+	std::cin >> responce;
+	if (responce == "Y" || responce == "y") {
+		int numberOfPlayers, numwood, numbrick, numsheep, numrock, numwheat, numdevCards, numSettlements, numRoads, numCities;
+		int tile, corner1, corner2;
+		std::cout << "How many players? ";
+		std::cin >> numberOfPlayers;
 
-	for (int i = 0; i < game.getNumberOfPlayers(); i++) {
-		Player currentPlayer = (game.getPlayer(i));
-		std::cout << "Creating player " << i + 1 << ". How many of each of the following did this player have?" << std::endl;
-		std::cout <<  "Wood cards: ";
-		std::cin >> numwood;
-		game.getPlayerPointer(i).setNumberOfWood(numwood);
-		std::cout << "Sheep cards: ";
-		std::cin >> numsheep;
-		game.getPlayerPointer(i).setNumberOfSheep(numsheep);
-		std::cout << "Rock cards: ";
-		std::cin >> numrock;
-		game.getPlayerPointer(i).setNumberOfRock(numrock);
-		std::cout << "Wheat cards: ";
-		std::cin >> numwheat;
-		game.getPlayerPointer(i).setNumberOfWheat(numwheat);
-		std::cout << "Brick cards: ";
-		std::cin >> numbrick;
-		game.getPlayerPointer(i).setNumberOfBricks(numbrick);
-		std::cout << "Developement Cards: ";
-		std::cin >> numdevCards;
-		game.getPlayerPointer(i).setNumberOfDevCards(numdevCards);
-		std::cout << "Settlements: ";
-		std::cin >> numSettlements;
-		while (numSettlements > 5) {
-			std::cout << "You can only have 5 settlements." << std::endl;
-			std::cout << "Settlements: ";
-			std::cin >> numSettlements;
-		}
-		std::cout << "Roads: ";
-		std::cin >> numRoads;
-		while (numRoads > 15) {
-			std::cout << "You can only have 15 roads." << std::endl;
-			std::cout << "Roads: ";
-			std::cin >> numRoads;
-		}
-		std::cout << "Cities: ";
-		std::cin >> numCities;
-		while (numCities > 4) {
-			std::cout << "You can only have 4 cities." << std::endl;
-			std::cout << "Cities: ";
-			std::cin >> numCities;
-		}
+		Display display;
+		display.loadSpritePage("128hexsetBuildingFrame2.png");
+		GameController game;
+		game.addPlayers(numberOfPlayers);
 
 		refreshScreen(display, game.map, game);
 
-		for (int j = 0; j < numSettlements; j++) {
-			std::cout << "Place a settlement." << std::endl;
-			if (!getImprovementLocation(display, game.map, game, game.getPlayer(i), tile, corner1)) {
-				return -1; //player has closed game, return from main
+		for (int i = 0; i < game.getNumberOfPlayers(); i++) {
+			Player currentPlayer = (game.getPlayer(i));
+			std::cout << "Creating player " << i + 1 << ". How many of each of the following did this player have?" << std::endl;
+			std::cout << "Wood cards: ";
+			std::cin >> numwood;
+			game.getPlayerPointer(i).setNumberOfWood(numwood);
+			std::cout << "Sheep cards: ";
+			std::cin >> numsheep;
+			game.getPlayerPointer(i).setNumberOfSheep(numsheep);
+			std::cout << "Rock cards: ";
+			std::cin >> numrock;
+			game.getPlayerPointer(i).setNumberOfRock(numrock);
+			std::cout << "Wheat cards: ";
+			std::cin >> numwheat;
+			game.getPlayerPointer(i).setNumberOfWheat(numwheat);
+			std::cout << "Brick cards: ";
+			std::cin >> numbrick;
+			game.getPlayerPointer(i).setNumberOfBricks(numbrick);
+			std::cout << "Developement Cards: ";
+			std::cin >> numdevCards;
+			game.getPlayerPointer(i).setNumberOfDevCards(numdevCards);
+			std::cout << "Settlements: ";
+			std::cin >> numSettlements;
+			while (numSettlements > 5) {
+				std::cout << "You can only have 5 settlements." << std::endl;
+				std::cout << "Settlements: ";
+				std::cin >> numSettlements;
 			}
-			game.getPlayerPointer(i).makeSettlement(game.map.getTileByIndex(tile), corner1);
+			std::cout << "Roads: ";
+			std::cin >> numRoads;
+			while (numRoads > 15) {
+				std::cout << "You can only have 15 roads." << std::endl;
+				std::cout << "Roads: ";
+				std::cin >> numRoads;
+			}
+			std::cout << "Cities: ";
+			std::cin >> numCities;
+			while (numCities > 4) {
+				std::cout << "You can only have 4 cities." << std::endl;
+				std::cout << "Cities: ";
+				std::cin >> numCities;
+			}
+
 			refreshScreen(display, game.map, game);
+
+			for (int j = 0; j < numSettlements; j++) {
+				std::cout << "Place a settlement." << std::endl;
+				if (!getImprovementLocation(display, game.map, game, game.getPlayer(i), tile, corner1)) {
+					return -1; //player has closed game, return from main
+				}
+				game.getPlayerPointer(i).makeSettlement(game.map.getTileByIndex(tile), corner1);
+				refreshScreen(display, game.map, game);
+			}
+
+			for (int j = 0; j < numRoads; j++) {
+				std::cout << "Place a road." << std::endl;
+				if (!getRoadLocation(display, game.map, game, game.getPlayer(i), tile, corner1, corner2)) {
+					return -1; //player has closed game, return from main
+				}
+				game.getPlayerPointer(i).makeRoad(game.map.getTileByIndex(tile), corner1, corner2);
+				refreshScreen(display, game.map, game);
+			}
+
+			for (int j = 0; j < numCities; j++) {
+				std::cout << "Place a city." << std::endl;
+				if (!getImprovementLocation(display, game.map, game, game.getPlayer(i), tile, corner1)) {
+					return -1; //player has closed game, return from main
+				}
+				game.getPlayerPointer(i).makeCity(game.map.getTileByIndex(tile), corner1);
+				refreshScreen(display, game.map, game);
+			}
 		}
 
-		for (int j = 0; j < numRoads; j++) {
-			std::cout << "Place a road." << std::endl;
-			if (!getRoadLocation(display, game.map, game, game.getPlayer(i), tile, corner1, corner2)) {
-				return -1; //player has closed game, return from main
+		std::cout << "Close the window when your ready." << std::endl;
+
+		bool gameRunning = true;
+		while (gameRunning) {
+			if (display.checkUpdate()) {
+				refreshScreen(display, game.map, game);
+				display.clearUpdate();
 			}
-			game.getPlayerPointer(i).makeRoad(game.map.getTileByIndex(tile), corner1, corner2);
-			refreshScreen(display, game.map, game);
+			SDL_Event event;
+			while (SDL_PollEvent(&event)) {
+				if (event.type == SDL_QUIT) {
+					gameRunning = false;
+				}
+			}
+		}
+		display.cleanup();
+
+		std::cout << "Please enter the file name ending in .txt to save the game under: ";
+		std::cin >> responce;
+
+		std::fstream file;											
+		file.open(responce.c_str(), std::ios::out);							
+
+		while (file.fail()) {										
+			std::cout << "could not open file ";
+			std::cout << "Please enter the file name ending in .txt to save the game under: ";
+			std::cin >> responce;
+			file.open(responce.c_str(), std::ios::out);
 		}
 
-		for (int j = 0; j < numCities; j++) {
-			std::cout << "Place a city." << std::endl;
-			if (!getImprovementLocation(display, game.map, game, game.getPlayer(i), tile, corner1)) {
-				return -1; //player has closed game, return from main
-			}
-			game.getPlayerPointer(i).makeCity(game.map.getTileByIndex(tile), corner1);
-			refreshScreen(display, game.map, game);
+		for (int i = 0; i < numberOfPlayers; i++) {
+			file << "Player " << i << std::endl;
+			file << game.getPlayerPointer(i).getNumberOfWood() << std::endl;
+			file << game.getPlayerPointer(i).getNumberOfSheep() << std::endl;
+			file << game.getPlayerPointer(i).getNumberOfRock() << std::endl;
+			file << game.getPlayerPointer(i).getNumberOfWheat() << std::endl;
+			file << game.getPlayerPointer(i).getNumberOfBricks() << std::endl;
+			file << game.getPlayerPointer(i).getNumberOfDevCards() << std::endl;
 		}
+
+		return 0;
+	} else if (responce == "N" || responce == "n") {
+		std::cout << "Please enter the file name to be loaded: ";
+		std::cin >> responce;
 	}
-		
-	bool gameRunning = true;
-	while (gameRunning) {
-		if (display.checkUpdate()) {
-			refreshScreen(display, game.map, game);
-			display.clearUpdate();
-		}
-		SDL_Event event;
-		while (SDL_PollEvent(&event)) {
-			if (event.type == SDL_QUIT) {
-				gameRunning = false;
-			}
-		}
-	}
-	display.cleanup();
-	return 0;
 }
 
 void printPlayerPanels(Display screen, GameController game) {
