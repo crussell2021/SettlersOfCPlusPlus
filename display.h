@@ -7,6 +7,8 @@
 #include "SDL_ttf.h"
 #include "button.h"
 
+#ifndef COORDS_T
+#define COORDS_T
 struct coords_t {
 	int x;
 	int y;
@@ -23,10 +25,11 @@ struct coords_t {
 		return coords_t(coords.x + x, coords.y + y);
 	}
 
-	bool operator==(const coords_t& coords) {
+	bool operator==(const coords_t & coords) {
 		return (x == coords.x && y == coords.y);
 	}
 };
+#endif
 
 class Display {
 public:

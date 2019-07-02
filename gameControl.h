@@ -21,16 +21,18 @@ public:
 
 	int playerSelectOpenCorner(Display screen, CatanBoard map, Player player, int tileSelection, bool initialplace = false);
 	int playerSelectOwnedCorner(Display screen, CatanBoard map, Player player, int tileSelection, bool initialplace = false);
-	int playerSelectAdjacentCorner(Display screen, CatanBoard map, Player player, int tileSelection, int cornerSelection, bool initialplace = false);
+	HexLoc playerSelectAdjacentCorner(Display screen, CatanBoard map, GameController game, Player player, int tile, int corner1);
 
 	bool checkImprovement(HexLoc location, Player player, bool initialPlace = false);  //checks if the location is availible currently on the map
 	bool checkSettlement(cube_t tile, int corner, Player player, bool initialPlace = false);
 	bool checkRoad(cube_t tile, int corner1, int corner2, Player player, bool initialPlace = false);
 	
-	//bool addBuilding(Display screen, Player player, CatanBoard map);	//closing the screen will freeze the program, make sure if this returns false to return from main
+	Road convertToRoad(HexLoc, HexLoc);
 
 	//void checkRoll(int roll);
-	void initialResources();
+	//void initialResources();
+
+	void populateWithAdjacentTiles(HexLoc, Tile*);
 	
 	CatanBoard map;
 

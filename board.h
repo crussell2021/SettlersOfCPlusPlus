@@ -2,6 +2,7 @@
 #define CATANBOARD_H
 
 #include <time.h>
+#include <stdlib.h>
 #include "tile.h"
 //#include "HexLoc.h"
 
@@ -21,7 +22,14 @@ public:
 	cube_t getTileByIndex(int index) { return tiles[index].getHexCoords(); }
 	int getTileByCoords(cube_t tile);
 
-	tileType getTileType(int index) { return tiles[index].getType(); }
+	Tile getTileObj(int index) { return tiles[index]; }
+	Tile getTileObj(cube_t tile) { return tiles[getTileByCoords(tile)]; }
+
+	Tile getNeighborTile(cube_t tile, int direction) { return getTileObj(getTileObj(tile).getNeighbor(direction)); }
+	cube_t getNeighbor(cube_t tile, int direction) { return getTileObj(tile).getNeighbor(direction); }
+	int getNeighbor(int tileIndex, int direction) { return getTileByCoords(tiles[tileIndex].getNeighbor(direction)); }
+
+	int getTileType(int index) { return tiles[index].getType(); }
 	void loadTileTypes();
 	void randomizeTileType();
 
@@ -31,7 +39,7 @@ public:
 
 	int getNumberOfTiles() { return numberOfTiles; }
 
-	tileType getResourceAt(int index) { return tiles[index].getType(); }
+	int getResourceAt(int index) { return tiles[index].getType(); }
 private:
 	void newTile(cube_t coords);
 	Tile* tiles;

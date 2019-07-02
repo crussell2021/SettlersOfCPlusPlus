@@ -10,15 +10,20 @@ void printBoard(Display screen, CatanBoard map);
 void printBuildings(Display screen, GameController game);
 
 bool buildRoad(Display screen, CatanBoard map, GameController& game, Player& player, bool initialPlace = false);
-bool buildSettlement(Display screen, CatanBoard map, GameController& game, Player& player, bool initialPlace = false);
+bool buildSettlement(Display screen, CatanBoard map, GameController& game, Player& player);
 
+bool initialPlacement(Display screen, GameController& game, Player& player);
+
+//bool getAdjacentCorner(Display screen, CatanBoard map, GameController game, Player player, int tile, int corner1, int* corner2);
 bool getImprovementLocation(Display screen, CatanBoard map, GameController game, Player player, int& tile, int& corner);
+bool getRoadLocation(Display screen, CatanBoard map, GameController game, Player player, int& tile, int& corner1, int& corner2, bool initialPlace);
 bool getRoadLocation(Display screen, CatanBoard map, GameController game, Player player, int& tile, int& corner1, int& corner2);
 
 void refreshScreen(Display screen, CatanBoard map, GameController game);
 
 int main(int argc, char* argv[]) {
-	int numberOfPlayers;
+	int numberOfPlayers, numwood, numbrick, numsheep, numrock, numwheat, numdevCards, numSettlements, numRoads, numCities;
+	int tile, corner1, corner2;
 	std::cout << "How many players? ";
 	std::cin >> numberOfPlayers;
 	
@@ -29,41 +34,78 @@ int main(int argc, char* argv[]) {
 	
 	refreshScreen(display, game.map, game);
 
-	std::cout << "Set up phase: place initial tiles" << std::endl;
-	
 	for (int i = 0; i < game.getNumberOfPlayers(); i++) {
-		std::cout << std::endl;
-		if (!buildSettlement(display, game.map, game, game.getPlayerPointer(i), true)) {
-			return 0;
+		Player currentPlayer = (game.getPlayer(i));
+		std::cout << "Creating player " << i + 1 << ". How many of each of the following did this player have?" << std::endl;
+		std::cout <<  "Wood cards: ";
+		std::cin >> numwood;
+		game.getPlayerPointer(i).setNumberOfWood(numwood);
+		std::cout << "Sheep cards: ";
+		std::cin >> numsheep;
+		game.getPlayerPointer(i).setNumberOfSheep(numsheep);
+		std::cout << "Rock cards: ";
+		std::cin >> numrock;
+		game.getPlayerPointer(i).setNumberOfRock(numrock);
+		std::cout << "Wheat cards: ";
+		std::cin >> numwheat;
+		game.getPlayerPointer(i).setNumberOfWheat(numwheat);
+		std::cout << "Brick cards: ";
+		std::cin >> numbrick;
+		game.getPlayerPointer(i).setNumberOfBricks(numbrick);
+		std::cout << "Developement Cards: ";
+		std::cin >> numdevCards;
+		game.getPlayerPointer(i).setNumberOfDevCards(numdevCards);
+		std::cout << "Settlements: ";
+		std::cin >> numSettlements;
+		while (numSettlements > 5) {
+			std::cout << "You can only have 5 settlements." << std::endl;
+			std::cout << "Settlements: ";
+			std::cin >> numSettlements;
 		}
-		else {
+		std::cout << "Roads: ";
+		std::cin >> numRoads;
+		while (numRoads > 15) {
+			std::cout << "You can only have 15 roads." << std::endl;
+			std::cout << "Roads: ";
+			std::cin >> numRoads;
+		}
+		std::cout << "Cities: ";
+		std::cin >> numCities;
+		while (numCities > 4) {
+			std::cout << "You can only have 4 cities." << std::endl;
+			std::cout << "Cities: ";
+			std::cin >> numCities;
+		}
+
+		refreshScreen(display, game.map, game);
+
+		for (int j = 0; j < numSettlements; j++) {
+			std::cout << "Place a settlement." << std::endl;
+			if (!getImprovementLocation(display, game.map, game, game.getPlayer(i), tile, corner1)) {
+				return -1; //player has closed game, return from main
+			}
+			game.getPlayerPointer(i).makeSettlement(game.map.getTileByIndex(tile), corner1);
 			refreshScreen(display, game.map, game);
 		}
 
-		if (!buildRoad(display, game.map, game, game.getPlayerPointer(i), true)) {
-			return 0;
-		}
-		else {
-			refreshScreen(display, game.map, game);
-		}
-	}
-	for (int i = game.getNumberOfPlayers(); i > 0; i--) {
-		std::cout << std::endl;
-		if (!buildSettlement(display, game.map, game, game.getPlayerPointer(i - 1), true)) {
-			return 0;
-		}
-		else {
+		for (int j = 0; j < numRoads; j++) {
+			std::cout << "Place a road." << std::endl;
+			if (!getRoadLocation(display, game.map, game, game.getPlayer(i), tile, corner1, corner2)) {
+				return -1; //player has closed game, return from main
+			}
+			game.getPlayerPointer(i).makeRoad(game.map.getTileByIndex(tile), corner1, corner2);
 			refreshScreen(display, game.map, game);
 		}
 
-		if (!buildRoad(display, game.map, game, game.getPlayerPointer(i - 1), true)) {
-			return 0;
-		}
-		else {
+		for (int j = 0; j < numCities; j++) {
+			std::cout << "Place a city." << std::endl;
+			if (!getImprovementLocation(display, game.map, game, game.getPlayer(i), tile, corner1)) {
+				return -1; //player has closed game, return from main
+			}
+			game.getPlayerPointer(i).makeCity(game.map.getTileByIndex(tile), corner1);
 			refreshScreen(display, game.map, game);
 		}
 	}
-	game.initialResources();
 		
 	bool gameRunning = true;
 	while (gameRunning) {
@@ -93,7 +135,7 @@ void printPlayerPanels(Display screen, GameController game) {
 		else {
 			panelY = screen.getScreenHeight() - 125;
 		}
-		screen.placeSolidRectangle(52, 82, 128, panelX, panelY, width, height);
+		screen.placeSolidRectangle(52, 82, 127, panelX, panelY, width, height);
 		screen.printText("Player " + std::to_string(i + 1), panelX + 5, panelY + 5);
 		screen.printText("Wood: " + std::to_string(game.getPlayer(i).getNumberOfWood()) + "  Bricks: " + std::to_string(game.getPlayer(i).getNumberOfBricks()), panelX + 10, panelY + 32);
 		screen.printText("Sheep: " + std::to_string(game.getPlayer(i).getNumberOfSheep()) + "  Wheat: " + std::to_string(game.getPlayer(i).getNumberOfWheat()), panelX + 10, panelY + 64);
@@ -131,8 +173,27 @@ void refreshScreen(Display screen, CatanBoard map, GameController game) {
 
 }
 
+bool initialPlacement(Display screen, GameController& game, Player& player) {
+	std::cout << "Player " << player.getColor() + 1 << " is placing an initial settlement." << std::endl;
+	int tile, corner1;
+	HexLoc location1, location2;
+	if (!getImprovementLocation(screen, game.map, game, player, tile, corner1)) {
+		return false; //player has closed game, return from main
+	}
+	player.makeSettlement(game.map.getTileByIndex(tile), corner1);
+	refreshScreen(screen, game.map, game);
+	location1 = HexLoc::combine(game.map.getTileByIndex(tile), corner1);
+	location2 = game.playerSelectAdjacentCorner(screen, game.map, game, player, tile, corner1);
+	if (location2 == HexLoc()) {
+		return false; //player has closed game, return from main
+	}
 
-bool buildSettlement(Display screen, CatanBoard map, GameController &game, Player &player, bool initialPlace) {
+	player.makeRoad(game.convertToRoad(location1, location2));
+	return true;
+}
+
+
+bool buildSettlement(Display screen, CatanBoard map, GameController &game, Player &player) {
 	std::cout << "Player " << player.getColor() + 1 << " is building a settlement." << std::endl;
 	int tile = 0, corner = 0;
 
@@ -161,7 +222,7 @@ bool buildRoad(Display screen, CatanBoard map, GameController &game, Player &pla
 	std::cout << "Player " << player.getColor() + 1 << " is building a road." << std::endl;
 	int corner1 = 0, corner2 = 0, tile = 0;
 
-	if (!getRoadLocation(screen, map, game, player, tile, corner1, corner2)) {
+	if (!getRoadLocation(screen, map, game, player, tile, corner1, corner2, initialPlace)) {
 		return false; //player has closed game, return from main
 	}
 	
@@ -170,17 +231,39 @@ bool buildRoad(Display screen, CatanBoard map, GameController &game, Player &pla
 }
 
 bool getRoadLocation(Display screen, CatanBoard map, GameController game, Player player, int& tile, int& corner1, int& corner2) {
+	bool corners[6] = { 1,1,1,1,1,1 };
 	tile = game.playerSelectTile(screen, map);
 	if (tile == -1) {
-		return false;			//player has closed the game, need to return main (brfore entering next while loop)
+		return false;
 	}
 	refreshScreen(screen, map, game);
-	corner1 = game.playerSelectOwnedCorner(screen, map, player, tile);	//player must slect a tile they can reach by road or have a settlement on
-	if (corner1 == -1) {
-		return false;			//player has closed the game, need to return main (brfore entering next while loop)
-	}
+	corner1 = game.playerSelectCorner(screen, map, tile, corners);
+
 	refreshScreen(screen, map, game);
-	corner2 = game.playerSelectAdjacentCorner(screen, map, player, tile, corner1);	//player must select a corner adjacent to the above selection
+	corner2 = game.playerSelectCorner(screen, map, tile, corners);
+	return true;
+}
+
+bool getRoadLocation(Display screen, CatanBoard map, GameController game, Player player, int& tile, int& corner1, int& corner2, bool initialPlace) {
+	if (!initialPlace) {
+		tile = game.playerSelectTile(screen, map);
+		if (tile == -1) {
+			return false;			//player has closed the game, need to return main (brfore entering next while loop)
+		}
+		refreshScreen(screen, map, game);
+		corner1 = game.playerSelectOwnedCorner(screen, map, player, tile);	//player must slect a tile they can reach by road or have a settlement on
+		if (corner1 == -1) {
+			return false;			//player has closed the game, need to return main (brfore entering next while loop)
+		}
+		refreshScreen(screen, map, game);
+	}
+	else {
+		HexLoc location = player.getSettlement(player.getNumberOfSettlements() - 1).getHexLoc();
+		tile = map.getTileByCoords( location.getHexCoords() );
+		corner1 = location.getPos();
+	}
+
+	corner2 = game.playerSelectOwnedCorner(screen, map, player, tile, corner1);	//player must select a corner adjacent to the above selection
 	if (corner2 == -1) {
 		return false;			//player has closed the game, need to return main (brfore entering next while loop)
 	}
@@ -194,18 +277,18 @@ void printBuildings(Display screen, GameController game) {
 	for (int i = 0; i < game.getNumberOfPlayers(); i++) {						//for every player
 		for (int j = 0; j < game.getPlayer(i).getNumberOfRoads(); j++) {		//print every road
 			imageCoords = game.getPlayer(i).getRoad(j).getImageLocation(tileSize);
-			imageCoords.x -= tileSize / 4;
-			imageCoords.y -= tileSize / 4;
-			screen.placeTexture(32 + (64 * game.getPlayer(i).getRoad(j).getDirection()), 224 + (64 * game.getPlayer(i).getColor()), centerCoords.x + imageCoords.x, centerCoords.y + imageCoords.y, 64, 64);
+			imageCoords.y -= 2;
+			imageCoords.x -= 2;
+			screen.placeTexture(32 + (64 * game.getPlayer(i).getRoad(j).getOrientation()), 224 + (64 * game.getPlayer(i).getColor()), centerCoords.x + imageCoords.x, centerCoords.y + imageCoords.y, 64, 64);
 		}
 	}
 	for (int i = 0; i < game.getNumberOfPlayers(); i++) {
 		for (int j = 0; j < game.getPlayer(i).getNumberOfSettlements(); j++) {	//print every settlement
-			imageCoords = imageCoords = game.getPlayer(i).getSettlement(j).getCenter(tileSize);
+			imageCoords = game.getPlayer(i).getSettlement(j).getCenter(tileSize);
 			screen.placeTexture(0, 224 + ( 64 * game.getPlayer(i).getColor()), centerCoords.x + imageCoords.x - 16, centerCoords.y + imageCoords.y - 16, 32, 32);
 		}
 		for (int j = 0; j < game.getPlayer(i).getNumberOfCities(); j++) {		//print every city
-			imageCoords = imageCoords = game.getPlayer(i).getCity(j).getCenter(tileSize);
+			imageCoords = game.getPlayer(i).getCity(j).getCenter(tileSize);
 			screen.placeTexture(0, 256 + (32 * game.getPlayer(i).getColor()), centerCoords.x + imageCoords.x - 16, centerCoords.y + imageCoords.y - 16, 32, 32);
 		}
 	}

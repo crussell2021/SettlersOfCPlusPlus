@@ -28,13 +28,13 @@ void CatanBoard::createTileRing(int radius) {
 	cube_t coords;						
 	for (int i = 0; i < radius; i++) {		//move tile out from center a dsitance of radius ((-1,+0,+1) * radius)
 		coords = tile.getNeighbor(4);		//set coords to this pos
-		tile.setHexCoordinates(coords);		//set tile to pos				this step could be simplified by overloading '=' operator
+		tile.setHexCoords(coords);		//set tile to pos				this step could be simplified by overloading '=' operator
 	}
 	for (int i = 0; i < 6; i++) {			//cyles through directions
 		for (int j = 0; j < radius; j++) {	//the radius of the ring is also the number of time you need to go in that direction for
 			newTile(coords);				//set next tile in array to this position
 			coords = tile.getNeighbor(i);	//get next tile coords
-			tile.setHexCoordinates(coords);	//update tile to next position
+			tile.setHexCoords(coords);	//update tile to next position
 		}
 	}
 }
@@ -64,7 +64,7 @@ coords_t CatanBoard::getCornerCoords(int index, int corner, int tileSize) {		//r
 }
 
 coords_t CatanBoard::getCornerCoords(cube_t tile, int corner, int tileSize) {		//returns center coordinated of tile, used for printing tiles to screen
-	coords_t coords = Tile::getTileCenter(tile, tileSize);
+	coords_t coords = HexLoc::getTileCenter(tile, tileSize);
 	switch (corner) {
 	case 0: coords.x += 0; coords.y -= tileSize / 2; break;
 	case 1: coords.x += tileSize / 2; coords.y -= tileSize / 4; break;
@@ -92,8 +92,8 @@ coords_t CatanBoard::getBorderCoords(int index, int tileSize) {
 }
 
 void CatanBoard::randomizeTileType() {
-	tileType temp;
-	srand(time(NULL));
+	int temp;
+	srand(int(time(NULL)));
 	int m, n;
 	for (int i = 0; i < 50; i++) {
 		m = (rand() % (numberOfTiles - 1)) + 1;			//choose random numbers from 1 to numberOfTiles
@@ -106,13 +106,13 @@ void CatanBoard::randomizeTileType() {
 
 void CatanBoard::loadTileTypes() {
 	for (int i = 1; i < numberOfTiles; i++) {
-		tiles[i].setType(tileType( (i % 5) + 1));
+		tiles[i].setType((i % 5) + 1);
 	}
 }
 
 void CatanBoard::randomizeTileNumbers() {
 	int temp;
-	srand(time(NULL));
+	srand(int(time(NULL)));
 	int m, n;
 	for (int i = 0; i < 50; i++) {
 		m = (rand() % (numberOfTiles - 1)) + 1;			//choose random numbers from 1 to numberOfTiles

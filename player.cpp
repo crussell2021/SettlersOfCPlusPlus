@@ -36,16 +36,28 @@ void Player::makeSettlement(cube_t tile, int corner) {
 	settlementArray[numberOfSettlements++] = Improvement(tile, corner);
 }
 
+void Player::makeCity(cube_t tile, int corner) {
+	cityArray[numberOfCities++] = Improvement(tile, corner, true);
+}
+
 void Player::makeRoad(cube_t tile, int corner1, int corner2) {
 	roadArray[numberOfRoads++] = Road(tile, corner1, corner2);
 }
 
-void Player::gainResource(tileType type) {
+void Player::makeRoad(Road road) {
+	roadArray[numberOfRoads++] = road;
+}
+
+void Player::gainResource(int type) {
 	switch (type) {
-	case sheep: sheepCards++; break;
-	case rock: rockCards++; break;
-	case brick: brickCards++; break;
-	case wood: woodCards++; break;
-	case wheat: wheatCards++; break;
+	case 1: woodCards++; break;
+	case 2: brickCards++; break;
+	case 3: sheepCards++; break;
+	case 4: wheatCards++; break;
+	case 5: rockCards++; break;
 	}
+}
+
+Improvement Player::getSettlement(int index) {
+	return settlementArray[index];
 }
