@@ -80,6 +80,7 @@ int GameController::playerSelectCorner(Display screen, CatanBoard map, int tileS
 	std::cout << "Please select a corner." << std::endl;
 	coords_t coords;
 	int cornerSelection = -1;
+	int validCorner1, validCorner2;
 	int xHover, yHover, resultHover, xClick, yClick, resultClick;
 	for (int i = 0; i < 6; i++) {
 		if (&possibleCorners[i]) {
@@ -122,6 +123,20 @@ int GameController::playerSelectCorner(Display screen, CatanBoard map, int tileS
 			}
 		}
 	}
+	for (int i = 0; i < 6; i++) {
+		possibleCorners[i] = 0;
+	}
+	validCorner1 = cornerSelection - 1;
+	validCorner2 = cornerSelection + 1;
+	if (validCorner1 < 0) {
+		validCorner1 += 6;
+	}
+	if (validCorner2 > 5) {
+		validCorner1 -= 6;
+	}
+
+	possibleCorners[validCorner1] = 1;		//only allow the corners right next to selection
+	possibleCorners[validCorner2] = 1;
 	screen.clearButtons();
 	screen.update();
 	return cornerSelection;
