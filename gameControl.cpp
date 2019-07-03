@@ -76,7 +76,7 @@ int GameController::playerSelectTile(Display screen, CatanBoard map) {
 	return tileSelection;
 }
 
-int GameController::playerSelectCorner(Display screen, CatanBoard map, int tileSelection, bool* possibleCorners) {
+int GameController::playerSelectCornerRoad(Display screen, CatanBoard map, int tileSelection, bool* possibleCorners) {
 	std::cout << "Please select a corner." << std::endl;
 	coords_t coords;
 	int cornerSelection = -1;
@@ -142,6 +142,57 @@ int GameController::playerSelectCorner(Display screen, CatanBoard map, int tileS
 	return cornerSelection;
 }
 
+int GameController::playerSelectCorner(Display screen, CatanBoard map, int tileSelection) {
+	std::cout << "Please select a corner." << std::endl;
+	coords_t coords;
+	int cornerSelection = -1;
+	int xHover, yHover, resultHover, xClick, yClick, resultClick;
+	for (int i = 0; i < 6; i++) {
+		coords = map.getCornerCoords(tileSelection, i, screen.getTileSize());					//get each corner for selected tile
+		coords.x -= (screen.getTileSize() / 8) - screen.center().x;			//move x
+		coords.y -= (screen.getTileSize() / 8) - screen.center().y;			//move y
+		screen.makeButton(coords.x, coords.y, screen.getTileSize() / 4, screen.getTileSize() / 4, true);
+	}
+	while (cornerSelection == -1) {
+		SDL_Event event;
+		while (SDL_PollEvent(&event)) {
+			if (event.type == SDL_MOUSEMOTION) {
+				xHover = event.button.x;
+				yHover = event.button.y;
+				resultHover = screen.checkButtons(xHover, yHover);
+				if (resultHover == -1) {
+					//no tile was found
+					screen.hideButtons();
+					screen.needUpdate();
+				}
+				else {
+					screen.highlightButton(resultHover);
+				}
+			}
+			if (event.type == SDL_MOUSEBUTTONDOWN) {
+				xClick = event.button.x;
+				yClick = event.button.y;
+				resultClick = screen.checkButtons(xClick, yClick);
+				if (resultClick == -1) {
+					//no tile was found
+				}
+				else {
+					cornerSelection = resultClick;
+				}
+			}
+			if (event.type == SDL_QUIT) {
+				screen.cleanup();
+				return -1;	//make sure to return main
+			}
+		}
+	}
+
+	screen.clearButtons();
+	screen.update();
+	return cornerSelection;
+}
+
+/*
 int GameController::playerSelectOpenCorner(Display screen, CatanBoard map, Player player, int tileSelection, bool initialPlace) {
 	bool possibleCorners[6];
 	HexLoc possibleCorner;
@@ -159,6 +210,7 @@ int GameController::playerSelectOpenCorner(Display screen, CatanBoard map, Playe
 	}
 	return playerSelectCorner(screen, map, tileSelection, possibleCorners);
 }
+
 
 int GameController::playerSelectOwnedCorner(Display screen, CatanBoard map, Player player, int tileSelection, bool initialPlace) {
 	bool possibleCorners[6];
@@ -189,7 +241,7 @@ int GameController::playerSelectOwnedCorner(Display screen, CatanBoard map, Play
 	}
 	return playerSelectCorner(screen, map, tileSelection, possibleCorners);
 }
-
+*/
 HexLoc GameController::playerSelectAdjacentCorner(Display screen, CatanBoard map, GameController game, Player player, int tile, int corner1) {
 	std::cout << "Please select an adjacent corner to make your road." << std::endl;
 	cube_t tileArray[3];

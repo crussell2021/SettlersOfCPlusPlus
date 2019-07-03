@@ -19,7 +19,6 @@ bool buildSettlement(Display screen, CatanBoard map, GameController& game, Playe
 
 //gets user input from screen
 bool getImprovementLocation(Display screen, CatanBoard map, GameController game, Player player, int& tile, int& corner);
-bool getRoadLocation(Display screen, CatanBoard map, GameController game, Player player, int& tile, int& corner1, int& corner2, bool initialPlace);
 bool getRoadLocation(Display screen, CatanBoard map, GameController game, Player player, int& tile, int& corner1, int& corner2);
 
 int main(int argc, char* argv[]) {
@@ -342,7 +341,7 @@ bool getImprovementLocation(Display screen, CatanBoard map, GameController game,
 		return false;			//player has closed the game, need to return main (before entering next while loop)
 	}
 	refreshScreen(screen, map, game);
-	corner = game.playerSelectOpenCorner(screen, map, player, tile); //get corner
+	corner = game.playerSelectCorner(screen, map, tile); //get corner
 	if (corner == -1) {
 		return false;			//player has closed the game, need to return main (brfore entering next while loop)
 	}
@@ -353,7 +352,7 @@ bool buildRoad(Display screen, CatanBoard map, GameController &game, Player &pla
 	std::cout << "Player " << player.getColor() + 1 << " is building a road." << std::endl;
 	int corner1 = 0, corner2 = 0, tile = 0;
 
-	if (!getRoadLocation(screen, map, game, player, tile, corner1, corner2, initialPlace)) {	//get tile and 2 corners
+	if (!getRoadLocation(screen, map, game, player, tile, corner1, corner2)) {	//get tile and 2 corners
 		return false; //player has closed game, return from main
 	}
 	
@@ -368,36 +367,10 @@ bool getRoadLocation(Display screen, CatanBoard map, GameController game, Player
 		return false;
 	}
 	refreshScreen(screen, map, game);
-	corner1 = game.playerSelectCorner(screen, map, tile, corners);	//get first corner
+	corner1 = game.playerSelectCorner(screen, map, tile);	//get first corner
 
 	refreshScreen(screen, map, game);
-	corner2 = game.playerSelectCorner(screen, map, tile, corners);	//get next corner
-	return true;
-}
-
-bool getRoadLocation(Display screen, CatanBoard map, GameController game, Player player, int& tile, int& corner1, int& corner2, bool initialPlace) {
-	if (!initialPlace) {
-		tile = game.playerSelectTile(screen, map);
-		if (tile == -1) {
-			return false;			//player has closed the game, need to return main (brfore entering next while loop)
-		}
-		refreshScreen(screen, map, game);
-		corner1 = game.playerSelectOwnedCorner(screen, map, player, tile);	//player must slect a tile they can reach by road or have a settlement on
-		if (corner1 == -1) {
-			return false;			//player has closed the game, need to return main (brfore entering next while loop)
-		}
-		refreshScreen(screen, map, game);
-	}
-	else {
-		HexLoc location = player.getSettlement(player.getNumberOfSettlements() - 1).getHexLoc();
-		tile = map.getTileByCoords( location.getHexCoords() );
-		corner1 = location.getPos();
-	}
-
-	corner2 = game.playerSelectOwnedCorner(screen, map, player, tile, corner1);	//player must select a corner adjacent to the above selection
-	if (corner2 == -1) {
-		return false;			//player has closed the game, need to return main (brfore entering next while loop)
-	}
+	corner2 = game.playerSelectCorner(screen, map, tile);	//get next corner
 	return true;
 }
 

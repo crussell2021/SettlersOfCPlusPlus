@@ -17,10 +17,11 @@ public:
 	int getNumberOfPlayers() { return numberOfPlayers; }
 
 	int playerSelectTile(Display screen, CatanBoard map);
-	int playerSelectCorner(Display screen, CatanBoard map, int tileSelection, bool* possibleCorners);
+	int playerSelectCorner(Display screen, CatanBoard map, int tileSelection);
+	int playerSelectCornerRoad(Display screen, CatanBoard map, int tileSelection, bool* possibleCorners);
 
-	int playerSelectOpenCorner(Display screen, CatanBoard map, Player player, int tileSelection, bool initialplace = false);
-	int playerSelectOwnedCorner(Display screen, CatanBoard map, Player player, int tileSelection, bool initialplace = false);
+	//int playerSelectOpenCorner(Display screen, CatanBoard map, Player player, int tileSelection, bool initialplace = false);
+	//int playerSelectOwnedCorner(Display screen, CatanBoard map, Player player, int tileSelection, bool initialplace = false);
 	HexLoc playerSelectAdjacentCorner(Display screen, CatanBoard map, GameController game, Player player, int tile, int corner1);
 
 	bool checkImprovement(HexLoc location, Player player, bool initialPlace = false);  //checks if the location is availible currently on the map
