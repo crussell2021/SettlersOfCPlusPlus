@@ -8,6 +8,11 @@ public:
 	Improvement();
 	Improvement(cube_t coords, int corner, bool city=false);
 	Improvement(HexLoc location, bool city=false);
+
+	int getX() { return hexLoc.getHexCoords().x; }
+	int getY() { return hexLoc.getHexCoords().y; }
+	int getZ() { return hexLoc.getHexCoords().z; }
+	int getCorner() { return hexLoc.getPos(); }
 	
 	void buildCity();
 	coords_t getCenter(int tileSize);

@@ -11,7 +11,11 @@ public:
 
 	bool containsCorner(HexLoc location);
 
+	int getX() { return locationCorners[0].getHexCoords().x; }
+	int getY() { return locationCorners[0].getHexCoords().y; }
+	int getZ() { return locationCorners[0].getHexCoords().z; }
 	int getCorner(int index) { return corner[index]; }
+	
 	int getOrientation() { return orientation; }
 	int getLocation() { return location; }
 	coords_t getImageLocation(int tileSize);

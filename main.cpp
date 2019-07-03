@@ -23,18 +23,22 @@ bool getRoadLocation(Display screen, CatanBoard map, GameController game, Player
 void refreshScreen(Display screen, CatanBoard map, GameController game);
 
 int main(int argc, char* argv[]) {
+	Display display;
+	display.loadSpritePage("128hexsetBuildingFrame2.png");
+	GameController game;
+
 	std::string responce;
 	std::cout << "With this program, you can save a catan game you have in progress and then load it up later and continue playing." << std::endl << "Create  new game? (Y/N): " << std::endl;
 	std::cin >> responce;
+
+	std::fstream file;
+
 	if (responce == "Y" || responce == "y") {
 		int numberOfPlayers, numwood, numbrick, numsheep, numrock, numwheat, numdevCards, numSettlements, numRoads, numCities;
 		int tile, corner1, corner2;
 		std::cout << "How many players? ";
 		std::cin >> numberOfPlayers;
 
-		Display display;
-		display.loadSpritePage("128hexsetBuildingFrame2.png");
-		GameController game;
 		game.addPlayers(numberOfPlayers);
 
 		refreshScreen(display, game.map, game);
@@ -131,32 +135,124 @@ int main(int argc, char* argv[]) {
 
 		std::cout << "Please enter the file name ending in .txt to save the game under: ";
 		std::cin >> responce;
-
-		std::fstream file;											
+										
 		file.open(responce.c_str(), std::ios::out);							
 
 		while (file.fail()) {										
-			std::cout << "could not open file ";
-			std::cout << "Please enter the file name ending in .txt to save the game under: ";
+			std::cout << "could not open file \r\n";
+			std::cout << "Please enter the file name ending in .txt to save the game under: \r\n";
 			std::cin >> responce;
 			file.open(responce.c_str(), std::ios::out);
 		}
 
+		file << game.getNumberOfPlayers() << std::endl;
+
+		Improvement settlement;
+		Road road;
+
 		for (int i = 0; i < numberOfPlayers; i++) {
-			file << "Player " << i << std::endl;
 			file << game.getPlayerPointer(i).getNumberOfWood() << std::endl;
 			file << game.getPlayerPointer(i).getNumberOfSheep() << std::endl;
 			file << game.getPlayerPointer(i).getNumberOfRock() << std::endl;
 			file << game.getPlayerPointer(i).getNumberOfWheat() << std::endl;
 			file << game.getPlayerPointer(i).getNumberOfBricks() << std::endl;
 			file << game.getPlayerPointer(i).getNumberOfDevCards() << std::endl;
+			file << game.getPlayerPointer(i).getNumberOfSettlements() << std::endl;
+			for (int j = 0; j < game.getPlayerPointer(i).getNumberOfSettlements(); j++) {
+				settlement = game.getPlayerPointer(i).getSettlement(j);
+				file << settlement.getX() << "\t" << settlement.getY() << "\t" << settlement.getZ() << "\t" << settlement.getCorner() << std::endl;
+			}
+			file << game.getPlayerPointer(i).getNumberOfCities() << std::endl;
+			for (int j = 0; j < game.getPlayerPointer(i).getNumberOfCities(); j++) {
+				settlement = game.getPlayerPointer(i).getCity(j);
+				file << settlement.getX() << "\t" << settlement.getY() << "\t" << settlement.getZ() << "\t" << settlement.getCorner() << std::endl;
+			}
+			file << game.getPlayerPointer(i).getNumberOfRoads() << std::endl;
+			for (int j = 0; j < game.getPlayerPointer(i).getNumberOfRoads(); j++) {
+				road = game.getPlayerPointer(i).getRoad(j);
+				file << road.getX() << "\t" << road.getY() << "\t" << road.getZ() << "\t" << road.getCorner(0) << "\t" << road.getCorner(1) << std::endl;
+			}
 		}
+		std::cout << "Your game has been succesfully saved as \'" << responce << "\' . Restart the program and enter that name to view it when your ready." << std::endl;
 
-		return 0;
 	} else if (responce == "N" || responce == "n") {
 		std::cout << "Please enter the file name to be loaded: ";
 		std::cin >> responce;
+
+		file.open(responce.c_str(), std::ios::in);
+
+		while (file.fail()) {
+			std::cout << "could not open file \r\n";
+			std::cout << "Please enter the file name ending in .txt to save the game under: \r\n";
+			std::cin >> responce;
+			file.open(responce.c_str(), std::ios::in);
+		}
+
+		int input, numberOfPlayers, tileX, tileY, tileZ, corner1, corner2;
+		cube_t tile;
+		file >> numberOfPlayers;
+		game.addPlayers(numberOfPlayers);
+
+		refreshScreen(display, game.map, game);
+
+		for (int i = 0; i < numberOfPlayers; i++) {
+			//resources
+			file >> input;
+			game.getPlayerPointer(i).setNumberOfWood(input);
+			file >> input;
+			game.getPlayerPointer(i).setNumberOfSheep(input);
+			file >> input;
+			game.getPlayerPointer(i).setNumberOfRock(input);
+			file >> input;
+			game.getPlayerPointer(i).setNumberOfWheat(input);
+			file >> input;
+			game.getPlayerPointer(i).setNumberOfBricks(input);
+			file >> input;
+			game.getPlayerPointer(i).setNumberOfDevCards(input);
+
+			//buildings
+			//settlements
+			file >> input;
+			for (int j = 0; j < input; j++) {
+				file >> tileX >> tileY >> tileZ >> corner1;
+				tile = { tileX, tileY, tileZ };
+				game.getPlayerPointer(i).makeSettlement(tile, corner1);
+			}
+			//cities
+			file >> input;
+			for (int j = 0; j < input; j++) {
+				file >> tileX >> tileY >> tileZ >> corner1;
+				tile = { tileX, tileY, tileZ };
+				game.getPlayerPointer(i).makeCity(tile, corner1);
+			}
+			//roads
+			file >> input;
+			for (int j = 0; j < input; j++) {
+				file >> tileX >> tileY >> tileZ >> corner1 >> corner2;
+				tile = { tileX, tileY, tileZ };
+				game.getPlayerPointer(i).makeRoad(tile, corner1, corner2);
+			}
+		}
+
+		refreshScreen(display, game.map, game);
+
+		//loop to keep window open
+		bool gameRunning = true;
+		while (gameRunning) {
+			if (display.checkUpdate()) {
+				refreshScreen(display, game.map, game);
+				display.clearUpdate();
+			}
+			SDL_Event event;
+			while (SDL_PollEvent(&event)) {
+				if (event.type == SDL_QUIT) {
+					gameRunning = false;
+				}
+			}
+		}
+		display.cleanup();
 	}
+	return 0;
 }
 
 void printPlayerPanels(Display screen, GameController game) {
@@ -174,7 +270,7 @@ void printPlayerPanels(Display screen, GameController game) {
 		screen.printText("Player " + std::to_string(i + 1), panelX + 5, panelY + 5);
 		screen.printText("Wood: " + std::to_string(game.getPlayer(i).getNumberOfWood()) + "  Bricks: " + std::to_string(game.getPlayer(i).getNumberOfBricks()), panelX + 10, panelY + 32);
 		screen.printText("Sheep: " + std::to_string(game.getPlayer(i).getNumberOfSheep()) + "  Wheat: " + std::to_string(game.getPlayer(i).getNumberOfWheat()), panelX + 10, panelY + 64);
-		screen.printText("Rock: " + std::to_string(game.getPlayer(i).getNumberOfSheep()) + "  Development Cards: " + std::to_string(game.getPlayer(i).getNumberOfDevCards()), panelX + 10, panelY + 96);
+		screen.printText("Rock: " + std::to_string(game.getPlayer(i).getNumberOfRock()) + "  Development Cards: " + std::to_string(game.getPlayer(i).getNumberOfDevCards()), panelX + 10, panelY + 96);
 	}
 }
 
@@ -324,7 +420,7 @@ void printBuildings(Display screen, GameController game) {
 		}
 		for (int j = 0; j < game.getPlayer(i).getNumberOfCities(); j++) {		//print every city
 			imageCoords = game.getPlayer(i).getCity(j).getCenter(tileSize);
-			screen.placeTexture(0, 256 + (32 * game.getPlayer(i).getColor()), centerCoords.x + imageCoords.x - 16, centerCoords.y + imageCoords.y - 16, 32, 32);
+			screen.placeTexture(0, 256 + (64 * game.getPlayer(i).getColor()), centerCoords.x + imageCoords.x - 16, centerCoords.y + imageCoords.y - 16, 32, 32);
 		}
 	}
 }
