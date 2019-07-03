@@ -4,7 +4,6 @@
 #include <time.h>
 #include <stdlib.h>
 #include "tile.h"
-//#include "HexLoc.h"
 
 class CatanBoard {
 public:
