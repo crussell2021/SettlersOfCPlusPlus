@@ -33,7 +33,8 @@ int GameController::playerSelectTile(Display screen, CatanBoard map) {
 		coords.y -= (screen.getTileSize() / 4) - screen.center().y;									//move y to top of rectangle inside of hex, making the button most of the hex's size
 		screen.makeButton(coords.x, coords.y, screen.getTileSize() / 2, screen.getTileSize() / 2, true);
 	}
-	int tileSelection = -1, cornerSelection = -1;
+	int tileSelection = -1;
+	// int cornerSelection = -1;
 	int xHover, yHover, resultHover, xClick, yClick, resultClick;
 	while (tileSelection == -1) {
 		SDL_Event event;
@@ -242,7 +243,10 @@ int GameController::playerSelectOwnedCorner(Display screen, CatanBoard map, Play
 	return playerSelectCorner(screen, map, tileSelection, possibleCorners);
 }
 */
-HexLoc GameController::playerSelectAdjacentCorner(Display screen, CatanBoard map, GameController game, Player player, int tile, int corner1) {
+HexLoc GameController::playerSelectAdjacentCorner(Display screen, CatanBoard map, GameController game, Player player, int tile, int corner1)
+{
+	game.getNumberOfPlayers();
+	player.getColor();
 	std::cout << "Please select an adjacent corner to make your road." << std::endl;
 	cube_t tileArray[3];
 	int cornerArray[3];

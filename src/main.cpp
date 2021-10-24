@@ -21,9 +21,16 @@ bool buildSettlement(Display screen, CatanBoard map, GameController& game, Playe
 bool getImprovementLocation(Display screen, CatanBoard map, GameController game, Player player, int& tile, int& corner);
 bool getRoadLocation(Display screen, CatanBoard map, GameController game, Player player, int& tile, int& corner1, int& corner2);
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) 
+{
+	if(argc)
+	{
+		std::cout << "argc: " << argc << std::endl;
+		std::cout << "argv: " << argv[0] << std::endl;
+	}	
+
 	Display display;
-	display.loadSpritePage("spriteSheet.png");	//load the sprite page into SDL so it can be clipped from
+	display.loadSpritePage("resources/spriteSheet.png");	//load the sprite page into SDL so it can be clipped from
 	GameController game;
 
 	std::string responce;
@@ -43,7 +50,7 @@ int main(int argc, char* argv[]) {
 		refreshScreen(display, game.map, game);
 
 		for (int i = 0; i < game.getNumberOfPlayers(); i++) {		//repeat for every player
-			Player currentPlayer = (game.getPlayer(i));
+			// Player currentPlayer = (game.getPlayer(i));
 			std::cout << "Creating player " << i + 1 << ". How many of each of the following did this player have?" << std::endl;
 			std::cout << "Wood cards: ";		
 			std::cin >> numwood;								//cin number of each resourse
@@ -336,6 +343,7 @@ bool buildSettlement(Display screen, CatanBoard map, GameController &game, Playe
 }
 
 bool getImprovementLocation(Display screen, CatanBoard map, GameController game, Player player, int &tile, int &corner) {
+	player.getColor();
 	tile = game.playerSelectTile(screen, map);		//get tile
 	if (tile == -1) {
 		return false;			//player has closed the game, need to return main (before entering next while loop)
@@ -349,7 +357,12 @@ bool getImprovementLocation(Display screen, CatanBoard map, GameController game,
 }
 
 bool buildRoad(Display screen, CatanBoard map, GameController &game, Player &player, bool initialPlace) {
-	std::cout << "Player " << player.getColor() + 1 << " is building a road." << std::endl;
+	player.getColor();
+	if (initialPlace)
+		std::cout << "Player " << player.getColor() + 1 << " is building an initial road." << std::endl;
+	else
+		std::cout << "Player " << player.getColor() + 1 << " is building a road." << std::endl;
+
 	int corner1 = 0, corner2 = 0, tile = 0;
 
 	if (!getRoadLocation(screen, map, game, player, tile, corner1, corner2)) {	//get tile and 2 corners
@@ -361,7 +374,8 @@ bool buildRoad(Display screen, CatanBoard map, GameController &game, Player &pla
 }
 
 bool getRoadLocation(Display screen, CatanBoard map, GameController game, Player player, int& tile, int& corner1, int& corner2) {
-	bool corners[6] = { 1,1,1,1,1,1 };		//array of availible corners
+	player.getColor();
+	// bool corners[6] = { 1,1,1,1,1,1 };		//array of availible corners
 	tile = game.playerSelectTile(screen, map);		//get tile
 	if (tile == -1) {
 		return false;

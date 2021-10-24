@@ -26,8 +26,8 @@ Display::Display() {
 	setupRenderer(renderer, 25, 125, 255, 255);										//clears the screen, and sets up a solid blue background
 
 	//load font for text
-	font = TTF_OpenFont("arial.ttf", 16);
-	fontColor = { 255, 255, 255 }; //white
+	font = TTF_OpenFont("resources/arial.ttf", 16);
+	fontColor = { 255, 255, 255, 255 }; //white
 
 	highlightRenderer = SDL_CreateRenderer(window, -1, 0);
 	SDL_RenderSetLogicalSize(highlightRenderer, screenWidth, screenHeight);
