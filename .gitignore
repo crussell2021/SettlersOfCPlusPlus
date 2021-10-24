@@ -1,7 +1,1 @@
-Debug/
-x64/
-source_code/x64/
-
-*.vcxproj
-*.vcxproj.filters
-*.vcxproj.user
+.vscode
