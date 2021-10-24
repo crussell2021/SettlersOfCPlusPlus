@@ -1,5 +1,6 @@
 # SettlersOfCPlusPlus
 
-Additional SDL files and .dll files are needed to compile. You can find them here: https://www.libsdl.org/. x64 versions are included in the dependencies folder, and are the same files used in developement of the game.
+## Project Setup
+Additional SDL files and .dll files are needed to compile. You can find them here: https://www.libsdl.org/, and a good guide to setting up SDL2 here: https://lazyfoo.net/tutorials/SDL/index.php#Event%20Driven%20Programming.
 
-Installing SDL is a bit of a pain in VS, there is a guide here that helps:https://www.wikihow.com/Set-Up-SDL-with-Visual-Studio, though the step where they change the linker->system->subsystem to WINDOWS will stop the console from opening. Its better to leave it set to Console instead.
+In the Makefile, you'll need to change the SDL2_SHARED_DIR_PATH variable to match where you've placed all your SDL2 files. All folders from SDL2 extensions (Image, TTF, etc.) are combined in the same directory.
